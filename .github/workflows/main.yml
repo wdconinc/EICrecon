@@ -65,7 +65,7 @@ jobs:
     - name: Cache JANA2 build
       uses: actions/cache@v3
       with:
-        key: JANA2-${{ runner.os }}-${{ matrix.LCG }}-${{ steps.JANA2.outputs.hash }}-${{ steps.podio.outputs.hash }}-${{ steps.edm4hep.outputs.hash }}
+        key: JANA2-${{ runner.os }}-${{ hashFiles('.github/workflows/main.yml') }}-${{ matrix.LCG }}-${{ steps.JANA2.outputs.hash }}-${{ steps.podio.outputs.hash }}-${{ steps.edm4hep.outputs.hash }}
         path: JANA2/build
 
     - name: Build in LCG view
