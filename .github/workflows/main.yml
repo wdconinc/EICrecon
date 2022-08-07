@@ -1,0 +1,57 @@
+name: C/C++ CI LCG
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+
+    runs-on: ubuntu-20.04
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        LCG: ["LCG_101/x86_64-ubuntu2004-gcc9-opt"]
+
+    steps:
+    - name: Checkout EICrecon
+      uses: actions/checkout@v3
+      with:
+        path: EICrecon
+
+    - name: Checkout JANA2 main
+      uses: actions/checkout@v3
+      with:
+        repository: JeffersonLab/JANA2
+        path: JANA2
+
+    - uses: cvmfs-contrib/github-action-cvmfs@v2
+      with:
+        cvmfs_repositories: 'sft.cern.ch,geant4.cern.ch'
+
+    - uses: aidasoft/run-lcg-view@v1
+      with:
+        release-platform: ${{ matrix.LCG }}
+        run: |
+
+          # build JANA2
+          cmake -B JANA2/build -S JANA2 \
+            -DCMAKE_INSTALL_PREFIX=JANA2 \
+            -DUSE_PYTHON=ON \
+            -DUSE_ROOT=ON \
+            -DUSE_XERCES=ON -DXercesC_DIR=/usr \
+            -DUSE_ZEROMQ=ON
+          make -C JANA2/build install
+
+          # build EICrecon
+          cmake -B EICrecon/build -S EICrecon/src \
+            -DCMAKE_INSTALL_PREFIX=EICrecon \
+          make -C EICrecon/build install
+
