@@ -41,13 +41,14 @@ jobs:
       with:
         cvmfs_repositories: 'sft.cern.ch,geant4.cern.ch'
 
-    - name: Cache JANA2 bulid
+    - name: Cache JANA2 build
       uses: actions/cache@v3
       with:
         key: JANA2-${{ runner.os }}-${{ matrix.LCG }}-${{ steps.JANA2.outputs.hash }}
         path: JANA2/build
 
-    - uses: aidasoft/run-lcg-view@v1
+    - name: Build JANA2
+      uses: aidasoft/run-lcg-view@v1
       with:
         release-platform: ${{ matrix.LCG }}
         run: |
@@ -61,6 +62,12 @@ jobs:
             -DUSE_XERCES=ON -DXercesC_DIR=/cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-ubuntu2004-gcc9-opt \
             -DUSE_ZEROMQ=ON
           make -C JANA2/build install
+
+    - name: Build EICrecon
+      uses: aidasoft/run-lcg-view@v1
+      with:
+        release-platform: ${{ matrix.LCG }}
+        run: |
 
           # build EICrecon
           ls -al EICrecon
