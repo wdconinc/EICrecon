@@ -21,11 +21,6 @@ jobs:
         LCG: ["LCG_101/x86_64-ubuntu2004-gcc9-opt"]
 
     steps:
-    - name: Checkout EICrecon
-      uses: actions/checkout@v3
-      with:
-        path: EICrecon
-
     - name: Checkout JANA2 main
       uses: actions/checkout@v3
       with:
@@ -35,6 +30,13 @@ jobs:
       id: JANA2
       run: |
         echo "::set-output name=hash::$(git -C JANA2 rev-parse HEAD)"
+    - name: Cache JANA2 build
+      uses: actions/cache@v3
+      with:
+        key: JANA2-build-${{ runner.os }}-${{ hashFiles('.github/workflows/lcg.yml') }}-${{ matrix.LCG }}-${{ steps.JANA2.outputs.hash }}
+        path: |
+          JANA2-build
+
 
     - name: Checkout podio tag
       uses: actions/checkout@v3
@@ -46,7 +48,6 @@ jobs:
       id: podio
       run: |
         echo "::set-output name=hash::$(git -C podio rev-parse HEAD)"
-
     - name: Checkout edm4hep tag
       uses: actions/checkout@v3
       with:
@@ -57,16 +58,22 @@ jobs:
       id: edm4hep
       run: |
         echo "::set-output name=hash::$(git -C edm4hep rev-parse HEAD)"
+    - name: Cache podio/edm4hep build
+      uses: actions/cache@v3
+      with:
+        key: podio-edm4hep-build-${{ runner.os }}-${{ hashFiles('.github/workflows/main.yml') }}-${{ matrix.LCG }}-${{ steps.podio.outputs.hash }}-${{ steps.edm4hep.outputs.hash }}
+        path: |
+          podio-build
+          edm4hep-build
 
     - uses: cvmfs-contrib/github-action-cvmfs@v2
       with:
         cvmfs_repositories: 'sft.cern.ch,geant4.cern.ch'
 
-    - name: Cache JANA2 build
-      uses: actions/cache@v3
+    - name: Checkout EICrecon
+      uses: actions/checkout@v3
       with:
-        key: JANA2-${{ runner.os }}-${{ hashFiles('.github/workflows/main.yml') }}-${{ matrix.LCG }}-${{ steps.JANA2.outputs.hash }}-${{ steps.podio.outputs.hash }}-${{ steps.edm4hep.outputs.hash }}
-        path: JANA2/build
+        path: EICrecon
 
     - name: Build in LCG view
       uses: aidasoft/run-lcg-view@v1
@@ -75,34 +82,35 @@ jobs:
         run: |
 
           # build JANA2
-          cmake -B JANA2/build -S JANA2 \
-            -DCMAKE_INSTALL_PREFIX=JANA2 \
+          cmake -B JANA2-build -S JANA2 \
+            -DCMAKE_INSTALL_PREFIX=JANA2-install \
             -DCMAKE_CXX_STANDARD=17 \
             -DUSE_PYTHON=ON \
             -DUSE_ROOT=ON \
             -DUSE_XERCES=ON -DXercesC_DIR=/cvmfs/sft.cern.ch/lcg/views/${{ matrix.LCG }} \
             -DUSE_ZEROMQ=ON
-          make -C JANA2/build install
+          make -C JANA2-build install
 
           # build podio
-          cmake -B podio/build -S podio \
-            -DCMAKE_INSTALL_PREFIX=podio \
+          cmake -B podio-build -S podio \
+            -DCMAKE_INSTALL_PREFIX=podio-install \
             -DUSE_EXTERNAL_CATCH2=OFF
-          make -C podio/build install
+          make -C podio-build install
           
           # build EDM4HEP
-          export PODIO=$PWD/podio
-          cmake -B edm4hep/build -S edm4hep \
-            -DCMAKE_INSTALL_PREFIX=edm4hep \
+          export PODIO=$PWD/podio-install
+          CMAKE_PREFIX_PATH="" \
+          cmake -B edm4hep-build -S edm4hep \
+            -DCMAKE_INSTALL_PREFIX=edm4hep-install \
             -DUSE_EXTERNAL_CATCH2=OFF
-          make -C edm4hep/build install
+          make -C edm4hep-build install
           
           # build EICrecon
-          cmake -B EICrecon/build -S EICrecon/src \
-            -DCMAKE_INSTALL_PREFIX=EICrecon \
-            -DJANA_ROOT=JANA2 \
-            -Dpodio_ROOT=podio \
-            -Dedm4hep_ROOT=edm4hep \
+          cmake -B EICrecon-build -S EICrecon/src \
+            -DCMAKE_INSTALL_PREFIX=EICrecon-install \
+            -DJANA_ROOT=JANA2-install \
+            -Dpodio_ROOT=podio-install \
+            -Dedm4hep_ROOT=edm4hep-install \
             -DDETECTOR_LIBS_EPIC=. -DDETECTOR_LIBS_IP6=.
           export EDM4HEP_ROOT=/cvmfs/sft.cern.ch/lcg/views/${{ matrix.LCG }}
           make -C EICrecon/build install
