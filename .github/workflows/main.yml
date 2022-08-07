@@ -63,9 +63,8 @@ jobs:
           make -C JANA2/build install
 
           # build EICrecon
-          ls -al EICrecon
           cmake -B EICrecon/build -S EICrecon/src \
             -DCMAKE_INSTALL_PREFIX=EICrecon \
-            -DJANA_DIR=JANA2
+            -DJANA_DIR=$PWD/JANA2
           make -C EICrecon/build install
 
