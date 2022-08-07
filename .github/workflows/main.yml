@@ -63,12 +63,6 @@ jobs:
             -DUSE_ZEROMQ=ON
           make -C JANA2/build install
 
-    - name: Build EICrecon
-      uses: aidasoft/run-lcg-view@v1
-      with:
-        release-platform: ${{ matrix.LCG }}
-        run: |
-
           # build EICrecon
           ls -al EICrecon
           cmake -B EICrecon/build -S EICrecon/src \
