@@ -31,10 +31,21 @@ jobs:
       with:
         repository: JeffersonLab/JANA2
         path: JANA2
+    - name: Get JANA2 commit hash
+      id: JANA2
+      run: |
+        echo "hash::$(git rev-parse HEAD)"
+        echo "::set-output name=hash::$(git rev-parse HEAD)"
 
     - uses: cvmfs-contrib/github-action-cvmfs@v2
       with:
         cvmfs_repositories: 'sft.cern.ch,geant4.cern.ch'
+
+    - name: Cache JANA2 bulid
+      uses: actions/cache@v3
+      with:
+        key: JANA2-${{ runner.os }}-${{ matrix.LCG }}-${{ steps.JANA2.outputs.hash }}
+        path: JANA2/build
 
     - uses: aidasoft/run-lcg-view@v1
       with:
@@ -52,6 +63,7 @@ jobs:
           make -C JANA2/build install
 
           # build EICrecon
+          ls -al EICrecon
           cmake -B EICrecon/build -S EICrecon/src \
             -DCMAKE_INSTALL_PREFIX=EICrecon \
           make -C EICrecon/build install
