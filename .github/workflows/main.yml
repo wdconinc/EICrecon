@@ -65,6 +65,7 @@ jobs:
           # build EICrecon
           ls -al EICrecon
           cmake -B EICrecon/build -S EICrecon/src \
-            -DCMAKE_INSTALL_PREFIX=EICrecon
+            -DCMAKE_INSTALL_PREFIX=EICrecon \
+            -DJANA_DIR=JANA2
           make -C EICrecon/build install
 
