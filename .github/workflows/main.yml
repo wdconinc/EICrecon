@@ -46,7 +46,7 @@ jobs:
             -DCMAKE_INSTALL_PREFIX=JANA2 \
             -DUSE_PYTHON=ON \
             -DUSE_ROOT=ON \
-            -DUSE_XERCES=ON \
+            -DUSE_XERCES=OFF \
             -DUSE_ZEROMQ=ON
           make -C JANA2/build install
 
