@@ -35,7 +35,7 @@ jobs:
       id: JANA2
       run: |
         echo "hash::$(git rev-parse HEAD)"
-        echo "::set-output name=hash::$(git rev-parse HEAD)"
+        echo "::set-output name=hash::$(git -C JANA2 rev-parse HEAD)"
 
     - uses: cvmfs-contrib/github-action-cvmfs@v2
       with:
