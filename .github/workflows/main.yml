@@ -36,6 +36,28 @@ jobs:
       run: |
         echo "::set-output name=hash::$(git -C JANA2 rev-parse HEAD)"
 
+    - name: Checkout podio tag
+      uses: actions/checkout@v3
+      with:
+        repository: AIDAsoft/podio
+        ref: v00-14-03
+        path: podio
+    - name: Get podio commit hash
+      id: podio
+      run: |
+        echo "::set-output name=hash::$(git -C podio rev-parse HEAD)"
+
+    - name: Checkout edm4hep tag
+      uses: actions/checkout@v3
+      with:
+        repository: key4hep/edm4hep
+        ref: v00-05
+        path: edm4hep
+    - name: Get edm4hep commit hash
+      id: edm4hep
+      run: |
+        echo "::set-output name=hash::$(git -C edm4hep rev-parse HEAD)"
+
     - uses: cvmfs-contrib/github-action-cvmfs@v2
       with:
         cvmfs_repositories: 'sft.cern.ch,geant4.cern.ch'
@@ -43,7 +65,7 @@ jobs:
     - name: Cache JANA2 build
       uses: actions/cache@v3
       with:
-        key: JANA2-${{ runner.os }}-${{ matrix.LCG }}-${{ steps.JANA2.outputs.hash }}
+        key: JANA2-${{ runner.os }}-${{ matrix.LCG }}-${{ steps.JANA2.outputs.hash }}-${{ steps.podio.outputs.hash }}-${{ steps.edm4hep.outputs.hash }}
         path: JANA2/build
 
     - name: Build in LCG view
@@ -58,13 +80,29 @@ jobs:
             -DCMAKE_CXX_STANDARD=17 \
             -DUSE_PYTHON=ON \
             -DUSE_ROOT=ON \
-            -DUSE_XERCES=ON -DXercesC_DIR=/cvmfs/sft.cern.ch/lcg/views/LCG_101/x86_64-ubuntu2004-gcc9-opt \
+            -DUSE_XERCES=ON -DXercesC_DIR=/cvmfs/sft.cern.ch/lcg/views/${{ matrix.LCG }} \
             -DUSE_ZEROMQ=ON
           make -C JANA2/build install
 
+          # build podio
+          cmake -B podio/build -S podio \
+            -DCMAKE_INSTALL_PREFIX=podio \
+            -DUSE_EXTERNAL_CATCH2=OFF
+          make -C podio/build install
+          
+          # build EDM4HEP
+          export PODIO=$PWD/podio
+          cmake -B edm4hep/build -S edm4hep \
+            -DCMAKE_INSTALL_PREFIX=edm4hep \
+            -DUSE_EXTERNAL_CATCH2=OFF
+          make -C edm4hep/build install
+          
           # build EICrecon
           cmake -B EICrecon/build -S EICrecon/src \
             -DCMAKE_INSTALL_PREFIX=EICrecon \
-            -DJANA_DIR=$PWD/JANA2
+            -DJANA_ROOT=JANA2 \
+            -Dpodio_ROOT=podio \
+            -Dedm4hep_ROOT=edm4hep \
+            -DDETECTOR_LIBS_EPIC=. -DDETECTOR_LIBS_IP6=.
+          export EDM4HEP_ROOT=/cvmfs/sft.cern.ch/lcg/views/${{ matrix.LCG }}
           make -C EICrecon/build install
-
