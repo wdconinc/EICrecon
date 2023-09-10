@@ -507,10 +507,11 @@ jobs:
       - uses: actions/checkout@v3
       - name: Run Doxygen
         run: |
-          apk add doxygen graphviz ttf-freefont
+          apk add doxygen graphviz tar ttf-freefont
           doxygen Doxyfile
+          tar -cf doxygen.tar html/
           cp -r docs publishing_docs
-          mv html publishing_docs/doxygen
+          mv doxygen.tar publishing_docs/
       - uses: actions/download-artifact@v3
         with:
           name: jana.dot
@@ -605,8 +606,10 @@ jobs:
           name: github-pages-staging
           path: publishing_docs/
       - run:
-          apk add tar bash
+          apk add tar bash find
         # FIXME bash not really required: see https://github.com/actions/upload-pages-artifact/pull/14
+      - run:
+          find publishing_docs/ -name doxygen.tar -exec tar -xf {} \;
       - uses: actions/upload-pages-artifact@v1
         with:
           path: publishing_docs/
