@@ -869,7 +869,7 @@ jobs:
         id: query
         with:
           query: |
-            query listOpenPullRequests() {
+            query {
               repository(owner: "eic", name: "EICrecon") {
                 pullRequests(last: 10, states: OPEN) {
                   include: edges {
