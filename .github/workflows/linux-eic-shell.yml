@@ -895,7 +895,9 @@ jobs:
           script: |
             const data = ${{ steps.query.outputs.data }}
             console.log(JSON.stringify(data))
-            return data['repository']['pullRequests']
+            const prs = data['repository']['pullRequests']
+            console.log(JSON.stringify(prs))
+            return prs
 
 
   get-docs-from-open-prs:
