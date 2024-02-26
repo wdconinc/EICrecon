@@ -890,7 +890,7 @@ jobs:
             }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: echo ${{ fromJSON(steps.query.outputs.data) }}
+      - run: echo ${{ toJSON(steps.query.outputs.data) }}
 
   get-docs-from-open-prs:
     runs-on: ubuntu-latest
