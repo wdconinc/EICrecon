@@ -863,21 +863,42 @@ jobs:
   list-open-prs:
     runs-on: ubuntu-latest
     outputs:
-      json: ${{ steps.remap.outputs.json }}
+      json: ${{ steps.query.outputs.data.repository.pullRequests }}
     steps:
-      - uses: octokit/request-action@v2.x
+      - uses: octokit/graphql-action@v2.x
         id: query
         with:
-          route: GET /repos/${{ github.repository }}/pulls?state=open
+          query: |
+            query {
+              repository(owner: "eic", name: "EICrecon") {
+                pullRequests(last: 10, states: OPEN) {
+                  include: edges {
+                    node {
+                      pr: number
+                      commits(last: 1) {
+                        nodes {
+                          commit {
+                            oid
+                          }
+                        }
+                      }
+                      draft: isDraft
+                    }
+                  }
+                }
+              }
+            }
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Remap open PRs
-        id: remap
-        uses: nickofthyme/object-remap@v2
+      - uses: actions/github-script@v7
         with:
-          __case: snake
-          include.*.pr: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
-          include.*.head_sha: ${{ toJSON(fromJSON(steps.query.outputs.data).*.head.sha) }}
+          script: |
+            const data = ${{ steps.query.outputs.data }}
+            console.log(JSON.stringify(data))
+            const prs = data['repository']['pullRequests']
+            console.log(JSON.stringify(prs))
+            return prs
+
 
   get-docs-from-open-prs:
     runs-on: ubuntu-latest
