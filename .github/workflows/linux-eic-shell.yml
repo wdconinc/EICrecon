@@ -892,7 +892,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: |
           echo "${{ toJSON(steps.query.outputs.data) }}"
-          echo "${{ toJSON(steps.query.outputs.data.repository.pullRequests) }}"
+          echo "${{ toJSON(steps.query.outputs.data['repository']['pullRequests']) }}"
 
   get-docs-from-open-prs:
     runs-on: ubuntu-latest
