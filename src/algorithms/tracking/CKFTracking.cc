@@ -67,13 +67,14 @@
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
 #include "ActsGeometryProvider.h"
+#include "PodioMeasurementCalibration.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace {
 
-/// Calibrator that reads directly from edm4eic::Measurement2DCollection.
+/// Calibrator that reads directly from edm4eic::Measurement2DCollection and works with Podio backend.
 /// Also owns the geometry-ordered IndexSourceLink multiset built from the same collection.
 class EDM4eicMeasurementSourceLinkCalibrator {
 public:
@@ -91,7 +92,8 @@ public:
 
   void calibrate(const Acts::GeometryContext& /*gctx*/, const Acts::CalibrationContext& /*cctx*/,
                  const Acts::SourceLink& sourceLink,
-                 Acts::VectorMultiTrajectory::TrackStateProxy trackState) const {
+                 ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>::TrackStateProxy
+                     trackState) const {
     trackState.setUncalibratedSourceLink(Acts::SourceLink{sourceLink});
     const auto& idxSourceLink = sourceLink.get<ActsExamples::IndexSourceLink>();
     const auto& meas2D        = (*m_meas2Ds)[idxSourceLink.index()];
@@ -146,14 +148,12 @@ void CKFTracking::init() {
 }
 
 void CKFTracking::process(const Input& input, const Output& output) const {
-  const auto [init_trk_seeds, meas2Ds]      = input;
-  auto [output_track_states, output_tracks] = output;
+  const auto [init_trk_seeds, meas2Ds] = input;
+  auto [output_track_states, output_track_parameters, output_track_jacobians, output_tracks] =
+      output;
 
-  // If measurements or initial track parameters are empty, create empty output containers
+  // If measurements or initial track parameters are empty, return early
   if (meas2Ds->empty() || init_trk_seeds->empty()) {
-    debug("No seeds or measurements, creating empty output containers");
-    *output_track_states = new Acts::ConstVectorMultiTrajectory();
-    *output_tracks       = new Acts::ConstVectorTrackContainer();
     return;
   }
 
@@ -205,6 +205,20 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
   const auto& cctx = m_geoSvc->getActsCalibrationContext();
 
+  // Create conversion helper for Podio backend
+  PodioGeometryIdConversionHelper helper(gctx, m_geoSvc->trackingGeometry());
+
+  // Create track container with ActsPodioEdm backend using externally owned collections
+  auto trackStateContainer =
+      std::make_shared<ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
+          helper, Acts::RefHolder{*output_track_states}, Acts::RefHolder{*output_track_parameters},
+          Acts::RefHolder{*output_track_jacobians});
+  auto trackContainer = std::make_shared<ActsPlugins::MutablePodioTrackContainer<Acts::RefHolder>>(
+      helper, Acts::RefHolder{*output_tracks});
+
+  // Create Acts TrackContainer with Podio backends using shared_ptr holder
+  PodioTrackContainer acts_tracks(trackContainer, trackStateContainer);
+
   Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
 
@@ -212,22 +226,21 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   Acts::GainMatrixUpdater kfUpdater;
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
-  Acts::CombinatorialKalmanFilterExtensions<ActsExamples::TrackContainer> extensions;
+  Acts::CombinatorialKalmanFilterExtensions<PodioTrackContainer> extensions;
   extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<
-      typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&kfUpdater);
+      typename PodioTrackContainer::TrackStateContainerBackend>>(&kfUpdater);
 
   ActsExamples::IndexSourceLinkAccessor slAccessor;
   slAccessor.container = &calibratorImpl.orderedSourceLinks();
   using TrackStateCreatorType =
-      Acts::TrackStateCreator<ActsExamples::IndexSourceLinkAccessor::Iterator,
-                              ActsExamples::TrackContainer>;
+      Acts::TrackStateCreator<ActsExamples::IndexSourceLinkAccessor::Iterator, PodioTrackContainer>;
   TrackStateCreatorType trackStateCreator;
   trackStateCreator.sourceLinkAccessor
       .template connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
   trackStateCreator.calibrator.template connect<&EDM4eicMeasurementSourceLinkCalibrator::calibrate>(
       &calibratorImpl);
-  trackStateCreator.measurementSelector
-      .template connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(&measSel);
+  trackStateCreator.measurementSelector.template connect<&Acts::MeasurementSelector::select<
+      ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>>(&measSel);
 
   extensions.createTrackStates.template connect<&TrackStateCreatorType::createTrackStates>(
       &trackStateCreator);
@@ -244,20 +257,28 @@ void CKFTracking::process(const Input& input, const Output& output) const {
                             acts_logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(gctx, mctx);
 
-  // Create track container
-  auto trackContainer      = std::make_shared<Acts::VectorTrackContainer>();
-  auto trackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
-  ActsExamples::TrackContainer acts_tracks(trackContainer, trackStateContainer);
+  // Create temporary track containers for intermediate processing
+  // Heap-allocate collections to ensure proper lifetime management across all copyFrom operations
+  auto tempTrackStates = std::make_shared<ActsPodioEdm::TrackStateCollection>();
+  auto tempTrackParams = std::make_shared<ActsPodioEdm::BoundParametersCollection>();
+  auto tempTrackJacs   = std::make_shared<ActsPodioEdm::JacobianCollection>();
+  auto tempTracks      = std::make_shared<ActsPodioEdm::TrackCollection>();
 
-  // Create temporary track container
-  auto trackContainerTemp      = std::make_shared<Acts::VectorTrackContainer>();
-  auto trackStateContainerTemp = std::make_shared<Acts::VectorMultiTrajectory>();
-  ActsExamples::TrackContainer acts_tracks_temp(trackContainerTemp, trackStateContainerTemp);
+  auto trackStateContainerTemp =
+      std::make_shared<ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
+          helper, Acts::RefHolder<ActsPodioEdm::TrackStateCollection>{*tempTrackStates},
+          Acts::RefHolder<ActsPodioEdm::BoundParametersCollection>{*tempTrackParams},
+          Acts::RefHolder<ActsPodioEdm::JacobianCollection>{*tempTrackJacs});
+  auto trackContainerTemp =
+      std::make_shared<ActsPlugins::MutablePodioTrackContainer<Acts::RefHolder>>(
+          helper, Acts::RefHolder<ActsPodioEdm::TrackCollection>{*tempTracks});
+  PodioTrackContainer acts_tracks_temp(trackContainerTemp, trackStateContainerTemp);
 
-  // Add seed number column
-  acts_tracks.addColumn<unsigned int>("seed");
-  acts_tracks_temp.addColumn<unsigned int>("seed");
-  Acts::ProxyAccessor<unsigned int> seedNumber("seed");
+  // TODO: Add seed number tracking back later using PODIO links or associations
+  // Dynamic columns in PODIO backend currently cause serialization issues
+  // acts_tracks.addColumn<unsigned int>("seed");
+  // acts_tracks_temp.addColumn<unsigned int>("seed");
+  // Acts::ProxyAccessor<unsigned int> seedNumber("seed");
 
   // Loop over seeds
   for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
@@ -307,17 +328,17 @@ void CKFTracking::process(const Input& input, const Output& output) const {
         continue;
       }
 
-      seedNumber(track) = iseed;
+      // TODO: Restore seed number tracking when dynamic columns are fixed
+      // seedNumber(track) = iseed;
 
       // Copy accepted track into main track container
       auto acts_tracks_proxy = acts_tracks.makeTrack();
       acts_tracks_proxy.copyFrom(track);
+
+      // Set the reference surface on the output track
+      acts_tracks_proxy.setReferenceSurface(pSurface);
     }
   }
-
-  // Allocate new const containers and assign pointers to outputs
-  *output_track_states = new Acts::ConstVectorMultiTrajectory(std::move(*trackStateContainer));
-  *output_tracks       = new Acts::ConstVectorTrackContainer(std::move(*trackContainer));
 }
 
 } // namespace eicrecon
