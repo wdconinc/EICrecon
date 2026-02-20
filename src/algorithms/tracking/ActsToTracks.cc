@@ -68,7 +68,7 @@ void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
   const auto [meas2Ds, track_seeds, acts_track_states, acts_track_parameters, acts_track_jacobians,
-              acts_tracks, raw_hit_assocs]                    = input;
+              acts_tracks, raw_hit_assocs] = input;
   auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc] = output;
 
   // Create accessor for seed number dynamic column
