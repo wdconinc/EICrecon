@@ -474,32 +474,31 @@ void ActsDD4hepDetectorGen3::construct() {
                                });
   ForwardTOF->setAttachmentStrategy(AttachmentStrategy::First);
 
-  // B0Tracker (OFF AXIS): x=−160 mm, z=6300 mm in world frame.
-  // CylinderVolumeStack requires all volumes to share a common z-axis (no x/y
-  // translation). B0 violates this by construction, so this block is kept
-  // commented until Acts Gen3 supports off-axis containers.
-  // setUseCenterOfGravity(false, false, true) only zeros the *sensor bounding-box
-  // centroid* in x/y; it cannot remove the 160 mm x-offset from the layer
-  // representative transform itself.
-  /*
-  auto B0Tracker = buildLayer({.kind       = LayerKind::Endcap,
-                               .sensorAxes = "XZY",
-                               .layerAxes  = std::nullopt,
-                               .pattern    = "B0Tracker_layer\\d",
-                               .container  = "B0Tracker",
-                               .label      = "B0Tracker",
-                               .emptyOk    = true},
-                              [&](const dd4hep::DetElement&,
-                                  std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
-                                layer->setUseCenterOfGravity(false, false, true);
-                                layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
-                                    .add<CylinderNavigationPolicy>()
-                                    .add<TryAllNavigationPolicy>()
-                                    .asUniquePtr());
-                                return layer;
-                              });
+  // B0Tracker (OFF AXIS): x=−160 mm in world frame; placed as off-axis subtree.
+  // Requires Acts OffAxisBlueprintNode (Acts/Geometry/OffAxisBlueprintNode.hpp),
+  // available in Acts >= v46.9 (wdconinc-off-axis-blueprint-support branch).
+  // The wrapper presents an on-axis cylindrical envelope to the parent container
+  // while preserving the true off-axis placement inside.
+#if __has_include(<Acts/Geometry/OffAxisBlueprintNode.hpp>)
+  auto B0Tracker =
+      buildLayer({.kind       = LayerKind::Endcap,
+                  .sensorAxes = "XZY",
+                  .layerAxes  = std::nullopt,
+                  .pattern    = "B0Tracker_layer\\d",
+                  .container  = "B0Tracker",
+                  .label      = "B0Tracker",
+                  .emptyOk    = true},
+                 [&](const dd4hep::DetElement&,
+                     std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+                   layer->setUseCenterOfGravity(false, false, true);
+                   layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
+                                                         .add<CylinderNavigationPolicy>()
+                                                         .add<TryAllNavigationPolicy>()
+                                                         .asUniquePtr());
+                   return layer;
+                 });
   B0Tracker->setAttachmentStrategy(AttachmentStrategy::First);
-  */
+#endif
 
   //
   // PLACE IN NESTED CONTAINERS
@@ -542,7 +541,15 @@ void ActsDD4hepDetectorGen3::construct() {
       tracker3.addChild(MPGDOuterBarrel);
     });
     //tracker4.addChild(ForwardTOF);    // ForwardTOF: placement in container hierarchy still TBD
-    //tracker4.addChild(B0Tracker);     // B0Tracker: off-axis (x=−160 mm), unsupported in Gen3
+#if __has_include(<Acts/Geometry/OffAxisBlueprintNode.hpp>)
+    // B0Tracker is off-axis (x=−160 mm); wrap it in an OffAxisBlueprintNode so
+    // CylinderVolumeStack sees a conservative on-axis envelope.
+    tracker4.addOffAxisContainer("B0TrackerWrapper", Transform3::Identity(),
+                                 [&](auto& offAxis) { offAxis.addChild(B0Tracker); });
+#else
+    // B0Tracker: Acts OffAxisBlueprintNode not available; disabled.
+    (void)0;
+#endif
   });
 
   // @TODO: Add plugin way to take this from xml
