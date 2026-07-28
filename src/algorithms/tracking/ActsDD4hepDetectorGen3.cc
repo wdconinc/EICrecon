@@ -19,7 +19,6 @@
 #include <Acts/Geometry/NavigationPolicyFactory.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Geometry/TrackingVolume.hpp>
-#include <Acts/Geometry/StaticBlueprintNode.hpp>
 #include <Acts/Geometry/VolumeAttachmentStrategy.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Navigation/CylinderNavigationPolicy.hpp>
@@ -511,27 +510,14 @@ void ActsDD4hepDetectorGen3::construct() {
   //   rmin=28 mm, rmax=28.5 mm,
   //   halfZ=698 mm (upstream 748 mm + downstream 648 mm straight lengths / 2),
   //   offset z=−50 mm (asymmetric upstream/downstream straight lengths).
-  // Fall back to a minimal placeholder if the element is absent.
-  std::shared_ptr<Acts::Experimental::BlueprintNode> beampipeNode;
-  try {
-    auto bpNode = builder.backend().makeBeampipe();
-    if (bpNode) {
-      logger().log(Acts::Logging::INFO, "Using acts_beampipe_central from DD4hep geometry");
-      beampipeNode = std::move(bpNode);
-    } else {
-      throw std::runtime_error("makeBeampipe() returned nullptr");
-    }
-  } catch (const std::exception& e) {
-    logger().log(Acts::Logging::WARNING, std::string("Failed to build beampipe from DD4hep (") +
-                                             e.what() + "); using hardcoded placeholder");
-    // Placeholder covers rmax of acts_beampipe_central (28.5 mm) plus margin,
-    // and half-length of the IP straight section (698 mm).
-    auto staticNode = std::make_shared<Acts::Experimental::StaticBlueprintNode>(
-        std::make_unique<Acts::TrackingVolume>(
-            Acts::Transform3::Identity(),
-            std::make_shared<Acts::CylinderVolumeBounds>(0_mm, 30_mm, 700_mm), "Beampipe"));
-    beampipeNode = std::move(staticNode);
+  auto beampipeNode = builder.backend().makeBeampipe();
+  if (!beampipeNode) {
+    throw std::runtime_error(
+        "Gen3 geometry construction requires acts_beampipe_central in the DD4hep detector "
+        "description, but makeBeampipe() returned nullptr. "
+        "Ensure the BeamPipe detector element is present in the detector XML.");
   }
+  logger().log(Acts::Logging::INFO, "Using acts_beampipe_central from DD4hep geometry");
 
   // Note: easiest to think from inside to outside
   root.addCylinderContainer("Tracker4", AxisZ, [&](auto& tracker4) {
