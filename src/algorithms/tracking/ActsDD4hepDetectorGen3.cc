@@ -506,10 +506,7 @@ void ActsDD4hepDetectorGen3::construct() {
   //
 
   // Build beampipe node from DD4hep acts_beampipe_central DetElement.
-  // That DetElement is a cylinder with:
-  //   rmin=28 mm, rmax=28.5 mm,
-  //   halfZ=698 mm (upstream 748 mm + downstream 648 mm straight lengths / 2),
-  //   offset z=−50 mm (asymmetric upstream/downstream straight lengths).
+  // Dimensions are read directly from the geometry; see BeamPipe in the detector XML.
   auto beampipeNode = builder.backend().makeBeampipe();
   if (!beampipeNode) {
     throw std::runtime_error(
@@ -524,28 +521,28 @@ void ActsDD4hepDetectorGen3::construct() {
     tracker4.addCylinderContainer("Tracker3", AxisR, [&](auto& tracker3) {
       tracker3.addChild(beampipeNode);
       tracker3.addCylinderContainer("Tracker2", AxisZ, [&](auto& tracker2) {
-        tracker2.addChild(BackwardMPGD);         // r=[65–405], z=[−1462,−1324]
-        tracker2.addChild(OuterTrackerEndcapN);  // r=[32–426], z=[−1275,−895]
-        tracker2.addChild(MiddleTrackerEndcapN); // r=[32-420], z ~ -450
+        tracker2.addChild(BackwardMPGD);
+        tracker2.addChild(OuterTrackerEndcapN);
+        tracker2.addChild(MiddleTrackerEndcapN);
         tracker2.addCylinderContainer("Tracker1", AxisR, [&](auto& tracker1) {
           tracker1.addCylinderContainer("Tracker0", AxisZ, [&](auto& tracker0) {
-            tracker0.addChild(InnerTrackerEndcapN); // r=[32-245], z ~ -250
-            tracker0.addChild(VertexBarrel);        // r=[33–130], z=[−135,+135]
-            tracker0.addChild(InnerTrackerEndcapP); // r=[32-245], z ~ +250
+            tracker0.addChild(InnerTrackerEndcapN);
+            tracker0.addChild(VertexBarrel);
+            tracker0.addChild(InnerTrackerEndcapP);
           });
-          tracker1.addChild(SagittaSiBarrel); // r=[258-275], z=[-256,+256]
-          tracker1.addChild(OuterSiBarrel);   // r=[413–430], z=[−402,+402]
+          tracker1.addChild(SagittaSiBarrel);
+          tracker1.addChild(OuterSiBarrel);
         });
-        tracker2.addChild(MiddleTrackerEndcapP); // r=[32-420], z ~ +450
-        tracker2.addChild(OuterTrackerEndcapP);  // r=[34–426], z=[+695,+1355]
-        tracker2.addChild(ForwardMPGD);          // r=[76–405], z=[+1249,+1387]
+        tracker2.addChild(MiddleTrackerEndcapP);
+        tracker2.addChild(OuterTrackerEndcapP);
+        tracker2.addChild(ForwardMPGD);
       });
-      tracker3.addChild(InnerMPGDBarrel); // r=[547–589], z=[−1192,+1192]
-      tracker3.addChild(BarrelTOF);       // r=[629–654], z=[−1285,+1285]
-      tracker3.addChild(MPGDOuterBarrel); // r=[731–762], z=[−1700,+1700]
+      tracker3.addChild(InnerMPGDBarrel);
+      tracker3.addChild(BarrelTOF);
+      tracker3.addChild(MPGDOuterBarrel);
     });
-    //tracker4.addChild(ForwardTOF);                     // r=[101–602], z ~ +1861
-    //tracker4.addChild(B0Tracker);                      // r=[35-150], z=[+5895,+6705] OFF-AXIS
+    //tracker4.addChild(ForwardTOF);    // ForwardTOF: placement in container hierarchy still TBD
+    //tracker4.addChild(B0Tracker);     // B0Tracker: off-axis (x=−160 mm), unsupported in Gen3
   });
 
   // @TODO: Add plugin way to take this from xml
