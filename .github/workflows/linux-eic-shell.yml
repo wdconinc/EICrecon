@@ -1585,9 +1585,26 @@ jobs:
           -f context="eicweb/eic_container"
       env:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build-wasm:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+      - name: Build WebAssembly MVP
+        run: |
+          mkdir -p wasm-build
+          em++ wasm/hello.cpp -o wasm-build/hello.js -lembind -O3
+      - uses: actions/upload-artifact@v7
+        with:
+          name: wasm-mvp
+          path: wasm-build/
+          if-no-files-found: error
+
   build-docs:
     runs-on: ubuntu-24.04
     needs:
+      - build-wasm
       - eicrecon-gun
       - eicrecon-dis
       - eicrecon-two-stage-running
@@ -1595,15 +1612,14 @@ jobs:
       - compare-seeding-seeding2
     steps:
       - uses: actions/checkout@v7
-      - name: Setup Emscripten
-        uses: mymindstorm/setup-emsdk@v14
-      - name: Build WebAssembly MVP
-        run: |
-          mkdir -p docs/wasm
-          em++ wasm/hello.cpp -o docs/wasm/hello.js -lembind -O3
       - name: Copy docs
         run: |
           cp -r docs publishing_docs
+      - name: Download WASM artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: wasm-mvp
+          path: publishing_docs/wasm/
       - name: Run Doxygen
         if: github.ref_name == 'main'
         run: |
