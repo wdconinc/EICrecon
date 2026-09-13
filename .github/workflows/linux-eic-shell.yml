@@ -1779,6 +1779,7 @@ jobs:
           path: publishing_docs/
       - name: Make PR summary page
         run: |
+          mkdir -p publishing_docs/pr
           echo "### PRs" >> publishing_docs/pr/index.md
           find publishing_docs/pr -mindepth 1 -maxdepth 1 -type d -printf "- [%f](%f/index.md)\n" | sort >> publishing_docs/pr/index.md
       - name: List content to publish
