@@ -1600,7 +1600,7 @@ jobs:
       - name: Build WebAssembly MVP
         run: |
           mkdir -p docs/wasm
-          emcc wasm/hello.cpp -o docs/wasm/hello.js -lembind -O3
+          em++ wasm/hello.cpp -o docs/wasm/hello.js -lembind -O3
       - name: Copy docs
         run: |
           cp -r docs publishing_docs
