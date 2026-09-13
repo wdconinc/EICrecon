@@ -16,6 +16,7 @@
     * [Particle Matching](design/particle_matching.md)
     * [Gaudi Algorithms](design/gaudi-algorithms.md)
 * Development
+    * [WebAssembly MVP](wasm.md)
     * [Capybara](capybara/index.md)
     * [Pull requests](pr/index.md)
     * [Doxygen](https://eicrecon.epic-eic.org/doxygen/)
