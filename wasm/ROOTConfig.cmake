@@ -14,3 +14,13 @@ set(ROOT_USE_FILE "${CMAKE_CURRENT_LIST_DIR}/ROOTUseFile.cmake")
 if(NOT TARGET ROOT::ROOTVecOps)
   add_library(ROOT::ROOTVecOps INTERFACE IMPORTED)
 endif()
+
+set_target_properties(
+  ROOT::ROOTVecOps PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
+                              "${CMAKE_CURRENT_LIST_DIR}/mock_root/include")
+set_target_properties(
+  ROOT::Physics PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
+                           "${CMAKE_CURRENT_LIST_DIR}/mock_root/include")
+set_target_properties(
+  ROOT::Core PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
+                        "${CMAKE_CURRENT_LIST_DIR}/mock_root/include")
