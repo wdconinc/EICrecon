@@ -10,7 +10,8 @@ include(FetchContent)
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 9.1.0)
+  GIT_TAG 9.1.0
+  OVERRIDE_FIND_PACKAGE)
 block()
 set(FMT_DOC OFF)
 set(FMT_TEST OFF)
@@ -20,7 +21,8 @@ endblock()
 FetchContent_Declare(
   podio
   GIT_REPOSITORY https://github.com/wdconinc/podio.git
-  GIT_TAG wasm)
+  GIT_TAG wasm
+  OVERRIDE_FIND_PACKAGE)
 
 block()
 set(ENABLE_ROOT OFF)
@@ -34,7 +36,8 @@ endblock()
 FetchContent_Declare(
   edm4hep
   GIT_REPOSITORY https://github.com/wdconinc/EDM4hep.git
-  GIT_TAG fix-dictionary-dependency)
+  GIT_TAG fix-dictionary-dependency
+  OVERRIDE_FIND_PACKAGE)
 
 block()
 set(ENABLE_ROOT OFF)
@@ -46,7 +49,8 @@ endblock()
 FetchContent_Declare(
   edm4eic
   GIT_REPOSITORY https://github.com/eic/edm4eic.git
-  GIT_TAG fix-dictionary-dependency)
+  GIT_TAG fix-dictionary-dependency
+  OVERRIDE_FIND_PACKAGE)
 
 block()
 set(ENABLE_ROOT OFF)
@@ -58,7 +62,8 @@ endblock()
 FetchContent_Declare(
   jana2
   GIT_REPOSITORY https://github.com/wdconinc/JANA2.git
-  GIT_TAG wasm)
+  GIT_TAG wasm
+  OVERRIDE_FIND_PACKAGE)
 
 block()
 set(USE_ROOT OFF)
