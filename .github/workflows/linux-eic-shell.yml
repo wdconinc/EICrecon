@@ -1595,6 +1595,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-jinja2 python3-yaml
+      - name: Cache FetchContent
+        uses: actions/cache@v4
+        with:
+          path: wasm-build/_deps
+          key: ${{ runner.os }}-wasm-fetchcontent-${{ hashFiles('wasm/CMakeLists.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-wasm-fetchcontent-
       - name: Build WebAssembly MVP
         run: |
           mkdir -p wasm-build
