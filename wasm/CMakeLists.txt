@@ -5,12 +5,14 @@ project(EICrecon_WASM)
 # cmake_minimum_required)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+set(ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
+
 include(FetchContent)
 
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 9.1.0
+  GIT_TAG 10.2.1
   OVERRIDE_FIND_PACKAGE)
 block()
 set(FMT_DOC OFF)
@@ -43,19 +45,23 @@ block()
 set(ENABLE_ROOT OFF)
 set(BUILD_TESTING OFF)
 set(BUILD_SHARED_LIBS OFF)
+set(EDM4HEP_WITH_JSON OFF)
 FetchContent_MakeAvailable(edm4hep)
 endblock()
+FetchContent_GetProperties(edm4hep)
+set(EDM4HEP_DATA_DIR "${edm4hep_SOURCE_DIR}")
 
 FetchContent_Declare(
   edm4eic
   GIT_REPOSITORY https://github.com/eic/edm4eic.git
-  GIT_TAG fix-dictionary-dependency
+  GIT_TAG main
   OVERRIDE_FIND_PACKAGE)
 
 block()
 set(ENABLE_ROOT OFF)
 set(BUILD_TESTING OFF)
 set(BUILD_SHARED_LIBS OFF)
+set(EDM4EIC_WITH_JSON OFF)
 FetchContent_MakeAvailable(edm4eic)
 endblock()
 
@@ -77,6 +83,6 @@ endblock()
 add_executable(eicrecon_shell hello.cpp)
 target_link_options(eicrecon_shell PRIVATE -lembind -O3)
 target_link_libraries(eicrecon_shell PRIVATE podio::podio)
-target_link_libraries(eicrecon_shell PRIVATE EDM4hep::edm4hep)
-target_link_libraries(eicrecon_shell PRIVATE EDM4eic::edm4eic)
+target_link_libraries(eicrecon_shell PRIVATE edm4hep)
+target_link_libraries(eicrecon_shell PRIVATE edm4eic)
 target_link_libraries(eicrecon_shell PRIVATE JANA)

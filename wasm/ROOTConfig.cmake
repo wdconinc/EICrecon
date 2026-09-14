@@ -1,0 +1,16 @@
+# Dummy FindROOT.cmake to satisfy downstream libraries unconditionally requiring
+# ROOT
+set(ROOT_FOUND TRUE)
+set(ROOT_VERSION "6.28.00")
+if(NOT TARGET ROOT::Core)
+  add_library(ROOT::Core INTERFACE IMPORTED)
+  add_library(ROOT::RIO INTERFACE IMPORTED)
+  add_library(ROOT::Tree INTERFACE IMPORTED)
+  add_library(ROOT::Physics INTERFACE IMPORTED)
+  add_library(ROOT::ROOTDataFrame INTERFACE IMPORTED)
+  add_library(ROOT::MathCore INTERFACE IMPORTED)
+endif()
+set(ROOT_USE_FILE "${CMAKE_CURRENT_LIST_DIR}/ROOTUseFile.cmake")
+if(NOT TARGET ROOT::ROOTVecOps)
+  add_library(ROOT::ROOTVecOps INTERFACE IMPORTED)
+endif()
