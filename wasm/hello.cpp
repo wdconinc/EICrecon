@@ -6,6 +6,7 @@
 #include <podio/podioVersion.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <JANA/JApplication.h>
 
 std::string execute_command(const std::string& cmd_line) {
   std::istringstream iss(cmd_line);
@@ -28,12 +29,17 @@ std::string execute_command(const std::string& cmd_line) {
     out << "  podio      - Show Podio version info\n";
     out << "  edm4hep    - Test EDM4hep integration\n";
     out << "  edm4eic    - Test EDM4eic integration\n";
+    out << "  jana2      - Test JANA2 integration\n";
     out << "  clear      - Clear the terminal\n";
     out << "  help       - Show this message";
   } else if (cmd == "echo") {
     for (size_t i = 1; i < args.size(); ++i) {
       out << args[i] << (i + 1 == args.size() ? "" : " ");
     }
+  } else if (cmd == "jana2") {
+    JApplication app;
+    out << "JANA2 built successfully!\n";
+    out << "Created a JApplication instance.\n";
   } else if (cmd == "edm4eic") {
     edm4eic::ReconstructedParticle eic_particle;
     out << "EDM4eic built successfully!\n";
