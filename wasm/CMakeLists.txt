@@ -28,6 +28,7 @@ FetchContent_Declare(
   OVERRIDE_FIND_PACKAGE)
 block()
 set(GSL_TEST OFF)
+set(GSL_INSTALL ON)
 FetchContent_MakeAvailable(microsoft_gsl)
 endblock()
 # Provide the alias expected by downstream
@@ -45,6 +46,7 @@ block()
 set(ENABLE_ROOT OFF)
 set(ENABLE_SIO OFF)
 set(BUILD_TESTING OFF)
+set(BUILD_TESTS OFF)
 set(podio_BUILD_DOXYGEN OFF)
 set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(podio)
@@ -59,6 +61,7 @@ FetchContent_Declare(
 block()
 set(ENABLE_ROOT OFF)
 set(BUILD_TESTING OFF)
+set(BUILD_TESTS OFF)
 set(BUILD_SHARED_LIBS OFF)
 set(EDM4HEP_WITH_JSON OFF)
 FetchContent_MakeAvailable(edm4hep)
@@ -75,6 +78,7 @@ FetchContent_Declare(
 block()
 set(ENABLE_ROOT OFF)
 set(BUILD_TESTING OFF)
+set(BUILD_TESTS OFF)
 set(BUILD_SHARED_LIBS OFF)
 set(EDM4EIC_WITH_JSON OFF)
 FetchContent_MakeAvailable(edm4eic)
@@ -90,7 +94,9 @@ block()
 set(USE_ROOT OFF)
 set(USE_PODIO ON)
 set(USE_ZEROMQ OFF)
+set(BUILD_EXAMPLES OFF)
 set(BUILD_TESTING OFF)
+set(BUILD_TESTS OFF)
 set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(jana2)
 endblock()
@@ -99,53 +105,45 @@ FetchContent_Declare(
   algorithms
   GIT_REPOSITORY https://github.com/eic/algorithms.git
   GIT_TAG main
-  OVERRIDE_FIND_PACKAGE)
+  OVERRIDE_FIND_PACKAGE
+  PATCH_COMMAND sed -i "s/.*VERSION_LESS 0.4.1.*/if(0)/" CMakeLists.txt)
 
 block()
 set(BUILD_TESTING OFF)
+set(BUILD_TESTS OFF)
 set(BUILD_SHARED_LIBS OFF)
+set(Microsoft.GSL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+set(DD4hep_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+# ---------------------------------------------------------------------------
+# Aliases and Dummies for WASM missing pieces
+# ---------------------------------------------------------------------------
+if(NOT TARGET EDM4HEP::edm4hep AND TARGET edm4hep)
+  add_library(EDM4HEP::edm4hep ALIAS edm4hep)
+endif()
+if(NOT TARGET EDM4EIC::edm4eic AND TARGET edm4eic)
+  add_library(EDM4EIC::edm4eic ALIAS edm4eic)
+endif()
+if(NOT TARGET podio::podioRootIO)
+  add_library(podioRootIO INTERFACE)
+  add_library(podio::podioRootIO ALIAS podioRootIO)
+endif()
+if(NOT TARGET podio::podioDict)
+  add_library(podioDict INTERFACE)
+  add_library(podio::podioDict ALIAS podioDict)
+endif()
+
 FetchContent_MakeAvailable(algorithms)
 endblock()
 
 # ---------------------------------------------------------------------------
-# MinimalPlugin (statically linked into eicrecon)
+# Minimal EICrecon Build
 # ---------------------------------------------------------------------------
 add_library(minimal_plugin STATIC plugins/MinimalPlugin/MinimalPlugin.cc)
 target_include_directories(
-  minimal_plugin PRIVATE ${jana2_SOURCE_DIR}/src/libraries
-                         ${CMAKE_CURRENT_SOURCE_DIR}/../src)
-target_link_libraries(minimal_plugin PRIVATE jana2_static_lib edm4hep
-                                             algorithms::core fmt::fmt)
+  minimal_plugin PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/plugins/MinimalPlugin)
+target_link_libraries(minimal_plugin PUBLIC jana2 EDM4EIC::edm4eic core)
 
-# ---------------------------------------------------------------------------
-# eicrecon executable
-# ---------------------------------------------------------------------------
-add_executable(
-  eicrecon ${CMAKE_CURRENT_SOURCE_DIR}/../src/utilities/eicrecon/eicrecon_cli.cc
-           eicrecon_main.cc)
-target_include_directories(eicrecon PRIVATE ${jana2_SOURCE_DIR}/src/libraries
-                                            ${CMAKE_CURRENT_SOURCE_DIR}/../src)
-target_link_libraries(
-  eicrecon
-  PRIVATE jana2_static_lib
-          podio::podio
-          podio::podioIO
-          edm4hep
-          edm4eic
-          minimal_plugin
-          fmt::fmt)
-
-# ---------------------------------------------------------------------------
-# eicrecon_shell (Embind WASM demo shell — kept from before)
-# ---------------------------------------------------------------------------
-add_executable(eicrecon_shell hello.cpp)
-target_link_options(eicrecon_shell PRIVATE -lembind -O3)
-target_link_libraries(eicrecon_shell PRIVATE podio::podio)
-target_link_libraries(eicrecon_shell PRIVATE edm4hep)
-target_link_libraries(eicrecon_shell PRIVATE edm4eic)
-target_link_libraries(eicrecon_shell PRIVATE jana2_static_lib)
-target_include_directories(eicrecon_shell
-                           PRIVATE ${jana2_SOURCE_DIR}/src/libraries)
-# Invalidate cache to fetch updated podio and edm4hep Invalidate cache to fetch
-# updated JANA2 Invalidate cache to fetch updated JANA2 again Invalidate cache
-# to fetch updated JANA2 again 3
+add_executable(eicrecon_wasm eicrecon_main.cc)
+target_link_libraries(eicrecon_wasm PUBLIC jana2 minimal_plugin)
+set_target_properties(eicrecon_wasm PROPERTIES OUTPUT_NAME eicrecon)
