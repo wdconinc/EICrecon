@@ -4,6 +4,7 @@ project(EICrecon_WASM)
 # Enforce CMP0077 NEW in all subdirectories (even if they specify older
 # cmake_minimum_required)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
 
@@ -85,4 +86,6 @@ target_link_options(eicrecon_shell PRIVATE -lembind -O3)
 target_link_libraries(eicrecon_shell PRIVATE podio::podio)
 target_link_libraries(eicrecon_shell PRIVATE edm4hep)
 target_link_libraries(eicrecon_shell PRIVATE edm4eic)
-target_link_libraries(eicrecon_shell PRIVATE JANA)
+target_link_libraries(eicrecon_shell PRIVATE jana2_static_lib)
+target_include_directories(eicrecon_shell
+                           PRIVATE ${jana2_SOURCE_DIR}/src/libraries)
