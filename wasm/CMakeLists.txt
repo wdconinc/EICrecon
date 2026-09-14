@@ -118,6 +118,10 @@ set(DD4hep_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 # ---------------------------------------------------------------------------
 # Aliases and Dummies for WASM missing pieces
 # ---------------------------------------------------------------------------
+
+if(NOT TARGET Microsoft.GSL::GSL AND TARGET GSL)
+  add_library(Microsoft.GSL::GSL ALIAS GSL)
+endif()
 if(NOT TARGET EDM4HEP::edm4hep AND TARGET edm4hep)
   add_library(EDM4HEP::edm4hep ALIAS edm4hep)
 endif()
@@ -141,9 +145,14 @@ endblock()
 # ---------------------------------------------------------------------------
 add_library(minimal_plugin STATIC plugins/MinimalPlugin/MinimalPlugin.cc)
 target_include_directories(
-  minimal_plugin PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/plugins/MinimalPlugin)
+  minimal_plugin
+  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/plugins/MinimalPlugin
+          ${jana2_SOURCE_DIR}/src/libraries ${jana2_BINARY_DIR}/src/libraries)
 target_link_libraries(minimal_plugin PUBLIC jana2 EDM4EIC::edm4eic core)
 
 add_executable(eicrecon_wasm eicrecon_main.cc)
+target_include_directories(
+  eicrecon_wasm PRIVATE ${jana2_SOURCE_DIR}/src/libraries
+                        ${jana2_BINARY_DIR}/src/libraries)
 target_link_libraries(eicrecon_wasm PUBLIC jana2 minimal_plugin)
 set_target_properties(eicrecon_wasm PROPERTIES OUTPUT_NAME eicrecon)
