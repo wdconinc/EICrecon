@@ -3,6 +3,7 @@
 #include <sstream>
 #include <vector>
 #include <emscripten/bind.h>
+#include <podio/podioVersion.h>
 
 std::string execute_command(const std::string& cmd_line) {
   std::istringstream iss(cmd_line);
@@ -22,12 +23,16 @@ std::string execute_command(const std::string& cmd_line) {
     out << "Available commands:\n";
     out << "  eicrecon   - Run the mock EICrecon framework\n";
     out << "  echo       - Print arguments\n";
+    out << "  podio      - Show Podio version info\n";
     out << "  clear      - Clear the terminal\n";
     out << "  help       - Show this message";
   } else if (cmd == "echo") {
     for (size_t i = 1; i < args.size(); ++i) {
       out << args[i] << (i + 1 == args.size() ? "" : " ");
     }
+  } else if (cmd == "podio") {
+    out << "Podio built successfully!\n";
+    out << "Podio version: " << podio::version::build_version << "\n";
   } else if (cmd == "eicrecon") {
     out << "eicrecon (WASM build)\n";
     out << "Initializing JANA2 framework...\n";
