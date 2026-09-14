@@ -31,7 +31,14 @@ FetchContent_Declare(
   GIT_TAG fix-dictionary-dependency)
 FetchContent_MakeAvailable(edm4hep)
 
+FetchContent_Declare(
+  edm4eic
+  GIT_REPOSITORY https://github.com/eic/edm4eic.git
+  GIT_TAG fix-dictionary-dependency)
+FetchContent_MakeAvailable(edm4eic)
+
 add_executable(eicrecon_shell hello.cpp)
 target_link_options(eicrecon_shell PRIVATE -lembind -O3)
 target_link_libraries(eicrecon_shell PRIVATE podio::podio)
 target_link_libraries(eicrecon_shell PRIVATE EDM4hep::edm4hep)
+target_link_libraries(eicrecon_shell PRIVATE EDM4eic::edm4eic)
