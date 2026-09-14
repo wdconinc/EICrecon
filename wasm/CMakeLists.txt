@@ -1,56 +1,59 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.25)
 project(EICrecon_WASM)
 
 include(FetchContent)
+
 FetchContent_Declare(
   podio
   GIT_REPOSITORY https://github.com/wdconinc/podio.git
   GIT_TAG wasm)
 
-set(ENABLE_ROOT
-    OFF
-    CACHE BOOL "" FORCE)
-set(ENABLE_SIO
-    OFF
-    CACHE BOOL "" FORCE)
-set(BUILD_TESTING
-    OFF
-    CACHE BOOL "" FORCE)
-set(podio_BUILD_DOXYGEN
-    OFF
-    CACHE BOOL "" FORCE)
-set(BUILD_SHARED_LIBS
-    OFF
-    CACHE BOOL "" FORCE)
-
+block()
+set(ENABLE_ROOT OFF)
+set(ENABLE_SIO OFF)
+set(BUILD_TESTING OFF)
+set(podio_BUILD_DOXYGEN OFF)
+set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(podio)
+endblock()
 
 FetchContent_Declare(
   edm4hep
   GIT_REPOSITORY https://github.com/wdconinc/EDM4hep.git
   GIT_TAG fix-dictionary-dependency)
+
+block()
+set(ENABLE_ROOT OFF)
+set(BUILD_TESTING OFF)
+set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(edm4hep)
+endblock()
 
 FetchContent_Declare(
   edm4eic
   GIT_REPOSITORY https://github.com/eic/edm4eic.git
   GIT_TAG fix-dictionary-dependency)
+
+block()
+set(ENABLE_ROOT OFF)
+set(BUILD_TESTING OFF)
+set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(edm4eic)
+endblock()
 
 FetchContent_Declare(
   jana2
   GIT_REPOSITORY https://github.com/wdconinc/JANA2.git
   GIT_TAG wasm)
-set(USE_ROOT
-    OFF
-    CACHE BOOL "" FORCE)
-set(USE_PODIO
-    OFF
-    CACHE BOOL "" FORCE)
-set(USE_ZEROMQ
-    OFF
-    CACHE BOOL "" FORCE)
+
+block()
+set(USE_ROOT OFF)
+set(USE_PODIO OFF)
+set(USE_ZEROMQ OFF)
+set(BUILD_TESTING OFF)
+set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(jana2)
+endblock()
 
 add_executable(eicrecon_shell hello.cpp)
 target_link_options(eicrecon_shell PRIVATE -lembind -O3)
