@@ -8,6 +8,16 @@ set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 include(FetchContent)
 
 FetchContent_Declare(
+  fmt
+  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+  GIT_TAG 9.1.0)
+block()
+set(FMT_DOC OFF)
+set(FMT_TEST OFF)
+FetchContent_MakeAvailable(fmt)
+endblock()
+
+FetchContent_Declare(
   podio
   GIT_REPOSITORY https://github.com/wdconinc/podio.git
   GIT_TAG wasm)
