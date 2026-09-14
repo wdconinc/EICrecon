@@ -5,6 +5,7 @@
 #include <emscripten/bind.h>
 #include <podio/podioVersion.h>
 #include <edm4hep/MCParticle.h>
+#include <edm4eic/ReconstructedParticle.h>
 
 std::string execute_command(const std::string& cmd_line) {
   std::istringstream iss(cmd_line);
@@ -26,12 +27,18 @@ std::string execute_command(const std::string& cmd_line) {
     out << "  echo       - Print arguments\n";
     out << "  podio      - Show Podio version info\n";
     out << "  edm4hep    - Test EDM4hep integration\n";
+    out << "  edm4eic    - Test EDM4eic integration\n";
     out << "  clear      - Clear the terminal\n";
     out << "  help       - Show this message";
   } else if (cmd == "echo") {
     for (size_t i = 1; i < args.size(); ++i) {
       out << args[i] << (i + 1 == args.size() ? "" : " ");
     }
+  } else if (cmd == "edm4eic") {
+    edm4eic::ReconstructedParticle eic_particle;
+    out << "EDM4eic built successfully!\n";
+    out << "Created a ReconstructedParticle. Is available? "
+        << (eic_particle.isAvailable() ? "Yes" : "No") << "\n";
   } else if (cmd == "edm4hep") {
     edm4hep::MCParticle particle;
     out << "EDM4hep built successfully!\n";
