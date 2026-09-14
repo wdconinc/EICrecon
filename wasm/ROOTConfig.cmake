@@ -6,21 +6,7 @@ if(NOT TARGET ROOT::Core)
   add_library(ROOT::Core INTERFACE IMPORTED)
   add_library(ROOT::RIO INTERFACE IMPORTED)
   add_library(ROOT::Tree INTERFACE IMPORTED)
-  add_library(ROOT::Physics INTERFACE IMPORTED)
   add_library(ROOT::ROOTDataFrame INTERFACE IMPORTED)
   add_library(ROOT::MathCore INTERFACE IMPORTED)
 endif()
 set(ROOT_USE_FILE "${CMAKE_CURRENT_LIST_DIR}/ROOTUseFile.cmake")
-if(NOT TARGET ROOT::ROOTVecOps)
-  add_library(ROOT::ROOTVecOps INTERFACE IMPORTED)
-endif()
-
-set_target_properties(
-  ROOT::ROOTVecOps PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
-                              "${CMAKE_CURRENT_LIST_DIR}/mock_root/include")
-set_target_properties(
-  ROOT::Physics PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
-                           "${CMAKE_CURRENT_LIST_DIR}/mock_root/include")
-set_target_properties(
-  ROOT::Core PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
-                        "${CMAKE_CURRENT_LIST_DIR}/mock_root/include")
