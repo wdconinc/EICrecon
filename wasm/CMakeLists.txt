@@ -37,8 +37,24 @@ FetchContent_Declare(
   GIT_TAG fix-dictionary-dependency)
 FetchContent_MakeAvailable(edm4eic)
 
+FetchContent_Declare(
+  jana2
+  GIT_REPOSITORY https://github.com/wdconinc/JANA2.git
+  GIT_TAG wasm)
+set(USE_ROOT
+    OFF
+    CACHE BOOL "" FORCE)
+set(USE_PODIO
+    OFF
+    CACHE BOOL "" FORCE)
+set(USE_ZEROMQ
+    OFF
+    CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(jana2)
+
 add_executable(eicrecon_shell hello.cpp)
 target_link_options(eicrecon_shell PRIVATE -lembind -O3)
 target_link_libraries(eicrecon_shell PRIVATE podio::podio)
 target_link_libraries(eicrecon_shell PRIVATE EDM4hep::edm4hep)
 target_link_libraries(eicrecon_shell PRIVATE EDM4eic::edm4eic)
+target_link_libraries(eicrecon_shell PRIVATE JANA)
