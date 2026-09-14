@@ -25,6 +25,13 @@ set(BUILD_SHARED_LIBS
 
 FetchContent_MakeAvailable(podio)
 
+FetchContent_Declare(
+  edm4hep
+  GIT_REPOSITORY https://github.com/wdconinc/EDM4hep.git
+  GIT_TAG fix-dictionary-dependency)
+FetchContent_MakeAvailable(edm4hep)
+
 add_executable(eicrecon_shell hello.cpp)
 target_link_options(eicrecon_shell PRIVATE -lembind -O3)
 target_link_libraries(eicrecon_shell PRIVATE podio::podio)
+target_link_libraries(eicrecon_shell PRIVATE EDM4hep::edm4hep)
