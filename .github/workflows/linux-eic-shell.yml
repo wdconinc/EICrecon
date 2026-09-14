@@ -1609,8 +1609,6 @@ jobs:
           emcmake cmake ../wasm
           emmake make -j2
           # output will be eicrecon_shell.js
-          mv eicrecon_shell.js hello.js
-          mv eicrecon_shell.wasm hello.wasm
       - uses: actions/upload-artifact@v7
         with:
           name: wasm-mvp
