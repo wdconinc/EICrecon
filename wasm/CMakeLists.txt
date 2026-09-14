@@ -89,4 +89,5 @@ target_link_libraries(eicrecon_shell PRIVATE edm4eic)
 target_link_libraries(eicrecon_shell PRIVATE jana2_static_lib)
 target_include_directories(eicrecon_shell
                            PRIVATE ${jana2_SOURCE_DIR}/src/libraries)
-# Invalidate cache to fetch updated podio and edm4hep
+# Invalidate cache to fetch updated podio and edm4hep Invalidate cache to fetch
+# updated JANA2
