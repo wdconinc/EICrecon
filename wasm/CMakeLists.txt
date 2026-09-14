@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.25)
 project(EICrecon_WASM)
 
+# Enforce CMP0077 NEW in all subdirectories (even if they specify older
+# cmake_minimum_required)
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+
 include(FetchContent)
 
 FetchContent_Declare(
