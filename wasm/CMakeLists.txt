@@ -4,8 +4,8 @@ project(EICrecon_WASM)
 include(FetchContent)
 FetchContent_Declare(
   podio
-  GIT_REPOSITORY https://github.com/AIDASoft/podio.git
-  GIT_TAG v01-08)
+  GIT_REPOSITORY https://github.com/wdconinc/podio.git
+  GIT_TAG wasm)
 
 set(ENABLE_ROOT
     OFF
