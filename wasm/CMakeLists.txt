@@ -6,9 +6,40 @@ project(EICrecon_WASM)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}")
-
 include(FetchContent)
+
+FetchContent_Declare(
+  ROOT
+  GIT_REPOSITORY https://github.com/wdconinc/root.git
+  GIT_TAG wasm-system-abi
+  OVERRIDE_FIND_PACKAGE)
+block()
+set(minimal ON)
+set(wasm ON)
+set(cling OFF)
+set(builtin_cling OFF)
+set(builtin_llvm OFF)
+set(builtin_clang OFF)
+set(runtime_cxxmodules OFF)
+set(gdml OFF)
+set(xml OFF)
+set(http OFF)
+set(ssl OFF)
+set(builtin_zlib ON)
+set(builtin_lz4 ON)
+set(builtin_lzma ON)
+set(builtin_zstd ON)
+set(builtin_xxhash ON)
+set(builtin_pcre ON)
+set(builtin_freetype ON)
+set(imt OFF)
+set(tbb OFF)
+set(physics ON)
+set(tree ON)
+set(BUILD_TESTING OFF)
+set(BUILD_SHARED_LIBS OFF)
+FetchContent_MakeAvailable(ROOT)
+endblock()
 
 FetchContent_Declare(
   fmt
@@ -43,7 +74,7 @@ FetchContent_Declare(
   OVERRIDE_FIND_PACKAGE)
 
 block()
-set(ENABLE_ROOT OFF)
+set(ENABLE_ROOT ON)
 set(ENABLE_SIO OFF)
 set(BUILD_TESTING OFF)
 set(BUILD_TESTS OFF)
@@ -59,7 +90,7 @@ FetchContent_Declare(
   OVERRIDE_FIND_PACKAGE)
 
 block()
-set(ENABLE_ROOT OFF)
+set(ENABLE_ROOT ON)
 set(BUILD_TESTING OFF)
 set(BUILD_TESTS OFF)
 set(BUILD_SHARED_LIBS OFF)
@@ -76,7 +107,7 @@ FetchContent_Declare(
   OVERRIDE_FIND_PACKAGE)
 
 block()
-set(ENABLE_ROOT OFF)
+set(ENABLE_ROOT ON)
 set(BUILD_TESTING OFF)
 set(BUILD_TESTS OFF)
 set(BUILD_SHARED_LIBS OFF)
@@ -91,7 +122,7 @@ FetchContent_Declare(
   OVERRIDE_FIND_PACKAGE)
 
 block()
-set(USE_ROOT OFF)
+set(USE_ROOT ON)
 set(USE_PODIO ON)
 set(USE_ZEROMQ OFF)
 set(BUILD_EXAMPLES OFF)
@@ -99,6 +130,19 @@ set(BUILD_TESTING OFF)
 set(BUILD_TESTS OFF)
 set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(jana2)
+endblock()
+
+FetchContent_Declare(
+  DD4hep
+  GIT_REPOSITORY https://github.com/wdconinc/DD4hep.git
+  GIT_TAG wasm-system-abi
+  OVERRIDE_FIND_PACKAGE)
+block()
+set(DD4HEP_USE_XERCESC OFF)
+set(DD4HEP_USE_GEANT4 OFF)
+set(DD4HEP_BUILD_EXAMPLES OFF)
+set(BUILD_TESTING OFF)
+FetchContent_MakeAvailable(DD4hep)
 endblock()
 
 FetchContent_Declare(
@@ -113,7 +157,6 @@ set(BUILD_TESTING OFF)
 set(BUILD_TESTS OFF)
 set(BUILD_SHARED_LIBS OFF)
 set(Microsoft.GSL_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-set(DD4hep_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 # ---------------------------------------------------------------------------
 # Aliases and Dummies for WASM missing pieces
@@ -127,14 +170,6 @@ if(NOT TARGET EDM4HEP::edm4hep AND TARGET edm4hep)
 endif()
 if(NOT TARGET EDM4EIC::edm4eic AND TARGET edm4eic)
   add_library(EDM4EIC::edm4eic ALIAS edm4eic)
-endif()
-if(NOT TARGET podio::podioRootIO)
-  add_library(podioRootIO INTERFACE)
-  add_library(podio::podioRootIO ALIAS podioRootIO)
-endif()
-if(NOT TARGET podio::podioDict)
-  add_library(podioDict INTERFACE)
-  add_library(podio::podioDict ALIAS podioDict)
 endif()
 
 FetchContent_MakeAvailable(algorithms)
