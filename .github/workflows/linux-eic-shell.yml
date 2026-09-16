@@ -1594,7 +1594,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y python3-jinja2 python3-yaml
+          sudo apt-get install -y python3-jinja2 python3-yaml libboost-all-dev
       - name: Cache FetchContent
         uses: actions/cache@v4
         with:
