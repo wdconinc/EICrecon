@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(FetchContent)
 
 set(ROOT_USE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/empty.cmake)
+set(ROOT_VERSION "6.32.0")
 FetchContent_Declare(
   ROOT
   GIT_REPOSITORY https://github.com/wdconinc/root.git
@@ -45,6 +46,7 @@ FetchContent_MakeAvailable(ROOT)
 endblock()
 
 set(ROOT_USE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/empty.cmake)
+set(ROOT_VERSION "6.32.0")
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
@@ -57,6 +59,7 @@ FetchContent_MakeAvailable(fmt)
 endblock()
 
 set(ROOT_USE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/empty.cmake)
+set(ROOT_VERSION "6.32.0")
 FetchContent_Declare(
   microsoft_gsl
   GIT_REPOSITORY https://github.com/microsoft/GSL.git
@@ -73,6 +76,7 @@ if(NOT TARGET Microsoft.GSL::GSL)
 endif()
 
 set(ROOT_USE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/empty.cmake)
+set(ROOT_VERSION "6.32.0")
 FetchContent_Declare(
   podio
   GIT_REPOSITORY https://github.com/wdconinc/podio.git
@@ -90,6 +94,7 @@ FetchContent_MakeAvailable(podio)
 endblock()
 
 set(ROOT_USE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/empty.cmake)
+set(ROOT_VERSION "6.32.0")
 FetchContent_Declare(
   edm4hep
   GIT_REPOSITORY https://github.com/wdconinc/EDM4hep.git
@@ -108,6 +113,7 @@ FetchContent_GetProperties(edm4hep)
 set(EDM4HEP_DATA_DIR "${edm4hep_SOURCE_DIR}")
 
 set(ROOT_USE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/empty.cmake)
+set(ROOT_VERSION "6.32.0")
 FetchContent_Declare(
   edm4eic
   GIT_REPOSITORY https://github.com/eic/edm4eic.git
@@ -124,6 +130,7 @@ FetchContent_MakeAvailable(edm4eic)
 endblock()
 
 set(ROOT_USE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/empty.cmake)
+set(ROOT_VERSION "6.32.0")
 FetchContent_Declare(
   jana2
   GIT_REPOSITORY https://github.com/wdconinc/JANA2.git
@@ -142,6 +149,7 @@ FetchContent_MakeAvailable(jana2)
 endblock()
 
 set(ROOT_USE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/empty.cmake)
+set(ROOT_VERSION "6.32.0")
 FetchContent_Declare(
   DD4hep
   GIT_REPOSITORY https://github.com/wdconinc/DD4hep.git
@@ -156,6 +164,7 @@ FetchContent_MakeAvailable(DD4hep)
 endblock()
 
 set(ROOT_USE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/empty.cmake)
+set(ROOT_VERSION "6.32.0")
 FetchContent_Declare(
   algorithms
   GIT_REPOSITORY https://github.com/eic/algorithms.git
