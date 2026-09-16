@@ -5,6 +5,8 @@ project(EICrecon_WASM)
 # cmake_minimum_required)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_CXX_STANDARD 20 CACHE STRING "")
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(FetchContent)
 
