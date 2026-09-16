@@ -161,7 +161,7 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/eic/algorithms.git
   GIT_TAG main
   OVERRIDE_FIND_PACKAGE
-  PATCH_COMMAND sed -i "s/.*VERSION_LESS 0.4.1.*/if(0)/" CMakeLists.txt)
+  PATCH_COMMAND sed -i "s/.*VERSION_LESS 0.4.1.*/if(0)/" CMakeLists.txt && sed -i "s/SHARED//g" core/CMakeLists.txt)
 
 block()
 set(BUILD_TESTING OFF)
