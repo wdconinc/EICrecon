@@ -53,7 +53,7 @@ set(ROOT_VERSION "6.32.0")
 FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 10.2.1
+  GIT_TAG 11.0.2
   OVERRIDE_FIND_PACKAGE)
 block()
 set(FMT_DOC OFF)
