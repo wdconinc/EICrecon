@@ -214,3 +214,4 @@ target_include_directories(
                         ${jana2_BINARY_DIR}/src/libraries)
 target_link_libraries(eicrecon_wasm PUBLIC jana2 minimal_plugin)
 set_target_properties(eicrecon_wasm PROPERTIES OUTPUT_NAME eicrecon)
+# force cache miss
