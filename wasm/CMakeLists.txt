@@ -20,6 +20,7 @@ FetchContent_Declare(
   OVERRIDE_FIND_PACKAGE)
 block()
 set(minimal ON)
+set(geom ON)
 set(wasm ON)
 set(cling OFF)
 set(builtin_cling OFF)
