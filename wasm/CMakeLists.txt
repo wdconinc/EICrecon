@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 20 CACHE STRING "")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(Boost_INCLUDE_DIR "/usr/include" CACHE PATH "" FORCE)
 set(CMAKE_SKIP_INSTALL_RULES ON)
+add_compile_definitions(FMT_USE_CONSTEVAL=0)
 
 include(FetchContent)
 
