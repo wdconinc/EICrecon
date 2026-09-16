@@ -55,7 +55,7 @@ FetchContent_Declare(
   fmt
   GIT_REPOSITORY https://github.com/fmtlib/fmt.git
   GIT_TAG 11.0.2
-  PATCH_COMMAND sed -i "s/#elif defined(__cpp_consteval)/#elif 0/g" include/fmt/base.h
+  PATCH_COMMAND sed -i "s/#  define FMT_USE_CONSTEVAL 1/#  define FMT_USE_CONSTEVAL 0/g" include/fmt/base.h
   OVERRIDE_FIND_PACKAGE)
 block()
 set(FMT_DOC OFF)
