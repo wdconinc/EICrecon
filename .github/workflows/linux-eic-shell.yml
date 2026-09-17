@@ -1599,9 +1599,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: wasm-build/_deps
-          key: ${{ runner.os }}-wasm-fetchcontent-v8-${{ hashFiles('wasm/CMakeLists.txt') }}
+          key: ${{ runner.os }}-wasm-fetchcontent-v9-${{ hashFiles('wasm/CMakeLists.txt') }}
           restore-keys: |
-            ${{ runner.os }}-wasm-fetchcontent-v8-
+            ${{ runner.os }}-wasm-fetchcontent-v9-
       - name: Build WebAssembly MVP
         run: |
           mkdir -p wasm-build
