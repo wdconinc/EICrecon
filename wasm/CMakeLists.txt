@@ -4,10 +4,17 @@ project(EICrecon_WASM)
 # Enforce CMP0077 NEW in all subdirectories (even if they specify older
 # cmake_minimum_required)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+# Workaround for Boost include path polluting the WASM sysroot
+if(EXISTS "/usr/include/boost")
+    file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/host_boost")
+    execute_process(COMMAND ln -sfn /usr/include/boost ${CMAKE_BINARY_DIR}/host_boost/boost)
+    set(Boost_INCLUDE_DIR "${CMAKE_BINARY_DIR}/host_boost" CACHE PATH "" FORCE)
+    set(CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES} /usr/include /usr/local/include)
+    set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES} /usr/include /usr/local/include)
+endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 20 CACHE STRING "")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(Boost_INCLUDE_DIR "/usr/include" CACHE PATH "" FORCE)
 set(CMAKE_SKIP_INSTALL_RULES ON)
 add_compile_definitions(FMT_USE_CONSTEVAL=0)
 
