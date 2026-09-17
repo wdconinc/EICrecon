@@ -11,6 +11,10 @@ if(EXISTS "/usr/include/boost")
     set(Boost_INCLUDE_DIR "${CMAKE_BINARY_DIR}/host_boost" CACHE PATH "" FORCE)
     set(CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_C_IMPLICIT_INCLUDE_DIRECTORIES} /usr/include /usr/local/include)
     set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES} /usr/include /usr/local/include)
+
+    # For cross-compiling ROOT dictionaries, we must use the host's rootcling and genreflex
+    set(ROOT_genreflex_CMD "genreflex" )
+    set(ROOT_rootcling_CMD "rootcling" )
 endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 20 CACHE STRING "")
