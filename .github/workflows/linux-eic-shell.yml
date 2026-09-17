@@ -1595,6 +1595,8 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-jinja2 python3-yaml libboost-all-dev
+          wget https://github.com/apptainer/apptainer/releases/download/v1.3.1/apptainer_1.3.1_amd64.deb
+          sudo apt-get install -y ./apptainer_1.3.1_amd64.deb
       - uses: cvmfs-contrib/github-action-cvmfs@v5
       - name: Cache FetchContent
         uses: actions/cache@v4
