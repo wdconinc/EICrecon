@@ -1595,6 +1595,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y python3-jinja2 python3-yaml libboost-all-dev
+      - uses: cvmfs-contrib/github-action-cvmfs@v5
       - name: Cache FetchContent
         uses: actions/cache@v4
         with:
@@ -1604,6 +1605,15 @@ jobs:
             ${{ runner.os }}-wasm-fetchcontent-v9-
       - name: Build WebAssembly MVP
         run: |
+          echo '#!/bin/bash' > /tmp/genreflex
+          echo 'source /cvmfs/epic.sdcc.bnl.gov/epic-main/bin/thisepic.sh' >> /tmp/genreflex
+          echo '/cvmfs/epic.sdcc.bnl.gov/epic-main/bin/genreflex "$@"' >> /tmp/genreflex
+          chmod +x /tmp/genreflex
+          echo '#!/bin/bash' > /tmp/rootcling
+          echo 'source /cvmfs/epic.sdcc.bnl.gov/epic-main/bin/thisepic.sh' >> /tmp/rootcling
+          echo '/cvmfs/epic.sdcc.bnl.gov/epic-main/bin/rootcling "$@"' >> /tmp/rootcling
+          chmod +x /tmp/rootcling
+
           mkdir -p wasm-build
           cd wasm-build
           emcmake cmake ../wasm

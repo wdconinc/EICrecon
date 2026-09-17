@@ -13,8 +13,8 @@ if(EXISTS "/usr/include/boost")
     set(CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES ${CMAKE_CXX_IMPLICIT_INCLUDE_DIRECTORIES} /usr/include /usr/local/include)
 
     # For cross-compiling ROOT dictionaries, we must use the host's rootcling and genreflex
-    set(ROOT_genreflex_CMD "genreflex" )
-    set(ROOT_rootcling_CMD "rootcling" )
+    set(ROOT_genreflex_CMD "/tmp/genreflex" )
+    set(ROOT_rootcling_CMD "/tmp/rootcling" )
 endif()
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 20 CACHE STRING "")
