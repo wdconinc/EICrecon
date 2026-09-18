@@ -1620,6 +1620,10 @@ jobs:
           # Fix podio UserDataCollection supported types for wasm32 dictionary generation
           sed -i 's/uint64_t>;/uint64_t, long, unsigned long>;/g' _deps/podio-src/include/podio/UserDataCollection.h || true
           sed -i 's/PODIO_ADD_USER_TYPE(uint64_t)/PODIO_ADD_USER_TYPE(uint64_t)\n#if defined(__EMSCRIPTEN__)\nPODIO_ADD_USER_TYPE(long)\nPODIO_ADD_USER_TYPE(unsigned long)\n#endif/g' _deps/podio-src/include/podio/UserDataCollection.h || true
+          # Fix DD4hep Primitives.cpp missing cxxabi for wasm32
+          sed -i 's/#if defined(__linux) || defined(__APPLE__) || defined(__powerpc64__)/#if defined(__linux) || defined(__APPLE__) || defined(__powerpc64__) || defined(__EMSCRIPTEN__)/g' _deps/dd4hep-src/DDCore/src/Primitives.cpp || true
+          # Fix ROOT cfortran.h missing compiler definition for wasm32
+          sed -i '1i #define gFortran' _deps/root-src/montecarlo/eg/inc/cfortran.h || true
           emmake make -j2
           # output will be eicrecon_shell.js
       - uses: actions/upload-artifact@v7
