@@ -1608,10 +1608,10 @@ jobs:
       - name: Build WebAssembly MVP
         run: |
           echo '#!/bin/bash' > /tmp/genreflex
-          echo 'apptainer exec --bind /cvmfs --bind /home/runner /cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl:nightly /bin/bash -c '\''source /opt/detector/epic-main/bin/thisepic.sh && genreflex -D__EMSCRIPTEN__ "$@"'\'' -- "$@"' >> /tmp/genreflex
+          echo 'apptainer exec --bind /cvmfs --bind /home/runner /cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl:nightly /bin/bash -c '\''source /opt/detector/epic-main/bin/thisepic.sh && genreflex "$@"'\'' -- "$@"' >> /tmp/genreflex
           chmod +x /tmp/genreflex
           echo '#!/bin/bash' > /tmp/rootcling
-          echo 'apptainer exec --bind /cvmfs --bind /home/runner /cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl:nightly /bin/bash -c '\''source /opt/detector/epic-main/bin/thisepic.sh && rootcling -D__EMSCRIPTEN__ "$@"'\'' -- "$@"' >> /tmp/rootcling
+          echo 'apptainer exec --bind /cvmfs --bind /home/runner /cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl:nightly /bin/bash -c '\''source /opt/detector/epic-main/bin/thisepic.sh && rootcling "$@"'\'' -- "$@"' >> /tmp/rootcling
           chmod +x /tmp/rootcling
 
           mkdir -p wasm-build
