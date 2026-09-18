@@ -1624,14 +1624,16 @@ jobs:
           sed -i 's/#if defined(__linux) || defined(__APPLE__) || defined(__powerpc64__)/#if defined(__linux) || defined(__APPLE__) || defined(__powerpc64__) || defined(__EMSCRIPTEN__)/g' _deps/dd4hep-src/DDCore/src/Primitives.cpp || true
           # Fix ROOT cfortran.h missing compiler definition for wasm32
           sed -i '1i #define gFortran' _deps/root-src/montecarlo/eg/inc/cfortran.h || true
-          # Fix ROOT/DD4hep dictionary generation GCC to Clang libc++ map iterator mismatch
+          # Fix ROOT/DD4hep dictionary generation GCC to Clang libc++ iterator mismatches
           echo '#if defined(__EMSCRIPTEN__)' >> _deps/root-src/core/meta/inc/TClass.h
           echo '#include <map>' >> _deps/root-src/core/meta/inc/TClass.h
+          echo '#include <vector>' >> _deps/root-src/core/meta/inc/TClass.h
           echo '#include <type_traits>' >> _deps/root-src/core/meta/inc/TClass.h
           echo 'template <typename T>' >> _deps/root-src/core/meta/inc/TClass.h
           echo 'using _Rb_tree_iterator = typename std::map<typename std::remove_const<typename T::first_type>::type, typename T::second_type>::iterator;' >> _deps/root-src/core/meta/inc/TClass.h
           echo 'template <typename T>' >> _deps/root-src/core/meta/inc/TClass.h
           echo 'using _Rb_tree_const_iterator = typename std::map<typename std::remove_const<typename T::first_type>::type, typename T::second_type>::const_iterator;' >> _deps/root-src/core/meta/inc/TClass.h
+          echo 'namespace __gnu_cxx { template <typename Iter, typename Container> using __normal_iterator = typename std::conditional<std::is_const<typename std::remove_pointer<Iter>::type>::value, typename Container::const_iterator, typename Container::iterator>::type; }' >> _deps/root-src/core/meta/inc/TClass.h
           echo '#endif' >> _deps/root-src/core/meta/inc/TClass.h
           # Remove ROOT Emscripten ClassDefInline overrides since we DO generate dictionaries via Apptainer wrapper
           sed -i 's/#ifdef __EMSCRIPTEN__/#if defined(__EMSCRIPTEN__) \&\& !defined(G__DICTIONARY)/g' _deps/root-src/core/base/inc/Rtypes.h || true
