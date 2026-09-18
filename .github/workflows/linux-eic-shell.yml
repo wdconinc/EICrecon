@@ -1624,6 +1624,17 @@ jobs:
           sed -i 's/#if defined(__linux) || defined(__APPLE__) || defined(__powerpc64__)/#if defined(__linux) || defined(__APPLE__) || defined(__powerpc64__) || defined(__EMSCRIPTEN__)/g' _deps/dd4hep-src/DDCore/src/Primitives.cpp || true
           # Fix ROOT cfortran.h missing compiler definition for wasm32
           sed -i '1i #define gFortran' _deps/root-src/montecarlo/eg/inc/cfortran.h || true
+          # Fix ROOT/DD4hep dictionary generation GCC to Clang libc++ map iterator mismatch
+          cat << 'EOF_RBTREE' >> _deps/root-src/core/meta/inc/TClass.h
+          #if defined(__EMSCRIPTEN__)
+          #include <map>
+          #include <type_traits>
+          template <typename T>
+          using _Rb_tree_iterator = typename std::map<typename std::remove_const<typename T::first_type>::type, typename T::second_type>::iterator;
+          template <typename T>
+          using _Rb_tree_const_iterator = typename std::map<typename std::remove_const<typename T::first_type>::type, typename T::second_type>::const_iterator;
+          #endif
+EOF_RBTREE
           emmake make -j2
           # output will be eicrecon_shell.js
       - uses: actions/upload-artifact@v7
