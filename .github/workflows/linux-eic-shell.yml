@@ -1625,16 +1625,14 @@ jobs:
           # Fix ROOT cfortran.h missing compiler definition for wasm32
           sed -i '1i #define gFortran' _deps/root-src/montecarlo/eg/inc/cfortran.h || true
           # Fix ROOT/DD4hep dictionary generation GCC to Clang libc++ map iterator mismatch
-          cat << 'EOF_RBTREE' >> _deps/root-src/core/meta/inc/TClass.h
-          #if defined(__EMSCRIPTEN__)
-          #include <map>
-          #include <type_traits>
-          template <typename T>
-          using _Rb_tree_iterator = typename std::map<typename std::remove_const<typename T::first_type>::type, typename T::second_type>::iterator;
-          template <typename T>
-          using _Rb_tree_const_iterator = typename std::map<typename std::remove_const<typename T::first_type>::type, typename T::second_type>::const_iterator;
-          #endif
-EOF_RBTREE
+          echo '#if defined(__EMSCRIPTEN__)' >> _deps/root-src/core/meta/inc/TClass.h
+          echo '#include <map>' >> _deps/root-src/core/meta/inc/TClass.h
+          echo '#include <type_traits>' >> _deps/root-src/core/meta/inc/TClass.h
+          echo 'template <typename T>' >> _deps/root-src/core/meta/inc/TClass.h
+          echo 'using _Rb_tree_iterator = typename std::map<typename std::remove_const<typename T::first_type>::type, typename T::second_type>::iterator;' >> _deps/root-src/core/meta/inc/TClass.h
+          echo 'template <typename T>' >> _deps/root-src/core/meta/inc/TClass.h
+          echo 'using _Rb_tree_const_iterator = typename std::map<typename std::remove_const<typename T::first_type>::type, typename T::second_type>::const_iterator;' >> _deps/root-src/core/meta/inc/TClass.h
+          echo '#endif' >> _deps/root-src/core/meta/inc/TClass.h
           emmake make -j2
           # output will be eicrecon_shell.js
       - uses: actions/upload-artifact@v7
