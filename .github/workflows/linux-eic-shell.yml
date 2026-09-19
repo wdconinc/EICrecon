@@ -1602,9 +1602,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: wasm-build/_deps
-          key: ${{ runner.os }}-wasm-fetchcontent-v9-${{ hashFiles('wasm/CMakeLists.txt') }}
+          key: ${{ runner.os }}-wasm-fetchcontent-v10-${{ hashFiles('wasm/CMakeLists.txt') }}
           restore-keys: |
-            ${{ runner.os }}-wasm-fetchcontent-v9-
+            ${{ runner.os }}-wasm-fetchcontent-v10-
       - name: Build WebAssembly MVP
         run: |
           echo '#!/bin/bash' > /tmp/genreflex
